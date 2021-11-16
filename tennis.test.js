@@ -1,6 +1,6 @@
 const Tennis = require("./tennis")
 
-xdescribe("game setup", () => {
+describe("game setup", () => {
   test("Tennis is instatiated with 2 player scores set at 0", () => {
     //ARRANGE
     const expectedScore = "love"
@@ -13,14 +13,14 @@ xdescribe("game setup", () => {
   })
 })
 
-xdescribe("the tennis scoring systems for a game is implemented correctly", () => {
+describe("the tennis scoring systems for a game is implemented correctly", () => {
   let game, score
   beforeEach(() => {
     game = new Tennis()
     score = game.score
   })
 
-  test("play() increases one player's score", () => {
+  xtest("play() increases one player's score", () => {
     const expectedScore = "15"
 
     game.play()
@@ -35,7 +35,7 @@ xdescribe("the tennis scoring systems for a game is implemented correctly", () =
     expect(checkOnlyOneScored).toBe(false)
   })
 
-  test("play() increases the score correctly for the first 3 points", () => { 
+  xtest("play() increases the score correctly for the first 3 points", () => { 
     let expectedScore = "30"
     game.playerA = 1, game.playerB = 1
 
@@ -57,14 +57,14 @@ xdescribe("the tennis scoring systems for a game is implemented correctly", () =
 
 })
 
-describe("endgame", () => {
+describe("Endgame", () => {
   let game, score
   beforeEach(() => {
     game = new Tennis()
     score = game.score
   })
 
-  test("One player wins", () => {
+  xtest("One player wins", () => {
     const expected = "win"
 
     game.play()
@@ -77,7 +77,30 @@ describe("endgame", () => {
     expect(checkOnlyOneWon).toBe(false)
   })
 
-  test("a player wins when they are on 40 or higher with 2 points clear", () => {
+  test("A player can score a maximum of 10 points", () => {
+    game.play()
 
+    const {playerA, playerB} = game
+    playerScores = [playerA, playerB]
+    const scoredMore = playerScores.filter(s => s > 10)
+    expect(scoredMore).toHaveLength(0)
+  })
+
+  test("a player wins when they are on 40 or higher with 2 points clear, or first one to ten", () => {
+    for(let i = 0; i < 10; i++){
+      let game = new Tennis()
+      game.play()    
+  
+      if (game.playerA === 10) {
+        expect(game.playerB).toBeLessThan(10)
+      } else if (game.playerB === 10) {
+        expect(game.playerA).toBeLessThan(10)
+      } else {
+        let diff = Math.abs(game.playerA - game.playerB)
+        expect(diff).toBeGreaterThanOrEqual(2)
+      }
+    }
   })
 })
+
+
