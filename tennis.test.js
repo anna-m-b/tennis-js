@@ -1,106 +1,97 @@
 const Tennis = require("./tennis")
 
 describe("game setup", () => {
-  test("Tennis is instatiated with 2 player scores set at 0", () => {
+  test("Tennis is instatiated with 2 player scores of 'love'", () => {
     //ARRANGE
-    const expectedScore = "love"
+    const expectedScore = "Love"
     //ACT
     const game = new Tennis()
-    const {score, playerA, playerB} = game
+    const { score, playerA, playerB } = game
     //ASSERT
     expect(score[playerA]).toBe(expectedScore)
     expect(score[playerB]).toBe(expectedScore)
   })
 })
 
-describe("the tennis scoring systems for a game is implemented correctly", () => {
-  let game, score
+describe("the game follows the scoring rules", () => {
+  let game
   beforeEach(() => {
     game = new Tennis()
-    score = game.score
+  })
+  test("a player wins when they are on 40 or higher with 2 points clear", () => {
+    game.playerA = 3
+    game.playerB = 1
+
+    game.serve(0)
+
+    expect(game.hasWonByTwoPoints()).toBe(true)
+
+    game.playerA = 3
+    game.playerB = 3
+
+    game.serve(0)
+
+    expect(game.hasWonByTwoPoints()).toBe(false)
   })
 
-  xtest("play() increases one player's score", () => {
-    const expectedScore = "15"
+  test("if both players reach 4 points, the player that lost the point is back to 3", () => {
+    game.playerA = 4
+    game.playerB = 3
 
-    game.play()
+    game.serve(1)
 
-    let {playerA, playerB} = game
+    expect(game.playerA).toBe(3)
+    expect(game.playerB).toBe(4)
 
-    const playerScores = [score[playerA], score[playerB]]
-    const onePlayerScored = playerScores.includes(expectedScore)
-    expect(onePlayerScored).toBe(true)
-    
-    const checkOnlyOneScored = (score[playerA] === expectedScore) && (score[playerB] === expectedScore)
-    expect(checkOnlyOneScored).toBe(false)
-  })
+    game.serve(0)
 
-  xtest("play() increases the score correctly for the first 3 points", () => { 
-    let expectedScore = "30"
-    game.playerA = 1, game.playerB = 1
-
-    game.play()
-  
-    let playerScores = [score[game.playerA], score[game.playerB]]
-    let onePlayerScoredAgain = playerScores.includes(expectedScore)
-    expect(onePlayerScoredAgain).toBe(true)
-
-    expectedScore = "40"
-    game.playerA = 2, game.playerB = 2
-
-    game.play()
-  
-    playerScores = [score[game.playerA], score[game.playerB]]
-    onePlayerScoredAgain = playerScores.includes(expectedScore)
-    expect(onePlayerScoredAgain).toBe(true)
-  })
-
-})
-
-describe("Endgame", () => {
-  let game, score
-  beforeEach(() => {
-    game = new Tennis()
-    score = game.score
-  })
-
-  xtest("One player wins", () => {
-    const expected = "win"
-
-    game.play()
-
-    playerScores = [score[game.playerA], score[game.playerB]]
-    onePlayerWon = playerScores.includes(expected)
-    expect(onePlayerWon).toBe(true)
-
-    const checkOnlyOneWon = (score[game.playerA] === expected) && (score[game.playerB] === expected)
-    expect(checkOnlyOneWon).toBe(false)
-  })
-
-  test("A player can score a maximum of 10 points", () => {
-    game.play()
-
-    const {playerA, playerB} = game
-    playerScores = [playerA, playerB]
-    const scoredMore = playerScores.filter(s => s > 10)
-    expect(scoredMore).toHaveLength(0)
-  })
-
-  test("a player wins when they are on 40 or higher with 2 points clear, or first one to ten", () => {
-    for(let i = 0; i < 10; i++){
-      let game = new Tennis()
-      game.play()    
-  
-      if (game.playerA === 10) {
-        expect(game.playerB).toBeLessThan(10)
-      } else if (game.playerB === 10) {
-        expect(game.playerA).toBeLessThan(10)
-      } else {
-        let diff = Math.abs(game.playerA - game.playerB)
-        expect(diff).toBeGreaterThanOrEqual(2)
-      }
-    }
+    expect(game.playerA).toBe(4)
+    expect(game.playerB).toBe(3)
   })
 })
 
+describe("the game can give the score in tennis terms", () => {
+  let game
+  beforeEach(() => {
+    game = new Tennis()
+  })
+  test("0 is Love", () => {
+    const expected = "PlayerA: Love\n PlayerB: Love"
+    const actual = game.getScore()
 
+    expect(actual).toBe(expected)
+  })
+  test("1 is Fifteen", () => {
+    game.playerA = 1
+
+    const expected = "PlayerA: Fifteen\n PlayerB: Love"
+    const actual = game.getScore()
+
+    expect(actual).toBe(expected)
+  })
+  test("2 is Thirty", () => {
+    game.playerA = 2
+
+    const expected = "PlayerA: Thirty\n PlayerB: Love"
+    const actual = game.getScore()
+
+    expect(actual).toBe(expected)
+  })
+  test("3 is Forty", () => {
+    game.playerA = 3
+
+    const expected = "PlayerA: Forty\n PlayerB: Love"
+    const actual = game.getScore()
+
+    expect(actual).toBe(expected)
+  })
+  test("3-3 is Deuce", () => {
+    game.playerA = 3
+    game.playerB = 3
+
+    const expected = "DEUCE"
+    const actual = game.getScore()
+
+    expect(actual).toBe(expected)
+  })
+})
